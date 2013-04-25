@@ -9,7 +9,6 @@ package component
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	
 	import swf.ui.ScrollBarBar;
 	import swf.ui.ScrollBarBg;
