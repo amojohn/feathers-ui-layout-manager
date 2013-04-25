@@ -112,10 +112,12 @@ package component.starling
 		public static function initAlert(container:DisplayObjectContainer):void
 		{
 			instance = new Alert();
+			container.visible = false;
 			Alert.container = container;
 		}
 		private function close():void
 		{
+			container.visible = false;
 			container.removeChild(instance);
 		}
 		public static function show(info:String,title:String='提示信息',type:int=0,funOK:Function=null,funCancel:Function=null):void
