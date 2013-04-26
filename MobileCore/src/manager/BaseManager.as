@@ -6,6 +6,7 @@ package manager
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getQualifiedSuperclassName;
 	
+	
 	/**
 	 * 登记式单例类的父类，可继承的单例类s
 	 * @author 袁浩

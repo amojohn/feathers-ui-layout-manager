@@ -1,24 +1,46 @@
 package component.starling
 {
+	import events.BaseEvent;
+	
 	import feathers.controls.List;
+	import feathers.controls.renderers.BaseDefaultItemRenderer;
 	import feathers.controls.renderers.IListItemRenderer;
-	import feathers.core.FeathersControl;
+	import feathers.core.IToggle;
 	
 	import manager.UIManager;
 	
 	import starling.display.DisplayObject;
 	import starling.events.Event;
 	
-	public class ListItem extends FeathersControl implements IListItemRenderer
+	public class ListItem extends  BaseDefaultItemRenderer implements IListItemRenderer,IToggle
 	{
+		public static var SELECTED:String='selected';
+		public static var UNSELECTED:String='unselected';
+		public static var CHANGE:String='itemchange';
 		public function ListItem()
 		{
+			super();
+			itemHasLabel = false;
+		}
+		
+		override public function set isSelected(value:Boolean):void
+		{
+			this._isSelected = value;
+			this.invalidate(INVALIDATION_FLAG_SELECTED);
+			if(this._isSelected)
+			{
+				UIManager.getInstance().dispatchEvent(new BaseEvent(SELECTED,this));
+			}
+			else
+			{
+				UIManager.getInstance().dispatchEvent(new BaseEvent(UNSELECTED,this));
+			}
+			dispatchEventWith(CHANGE,false,this);
 		}
 		override protected function initialize():void
 		{
 			UIManager.getInstance().addChildByUIName(this);
 		}
-		
 		override public function dispose():void
 		{
 			UIManager.getInstance().removeChildByName(this);
@@ -28,85 +50,65 @@ package component.starling
 		{
 			return UIManager.getInstance().getChildByName(childName,this);
 		}
+		
+		/**
+		 * @private
+		 */
 		protected var _index:int = -1;
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function get index():int
 		{
 			return this._index;
 		}
 		
+		/**
+		 * @private
+		 */
 		public function set index(value:int):void
 		{
-			if(this._index == value)
-			{
-				return;
-			}
 			this._index = value;
-			this.invalidate(INVALIDATION_FLAG_DATA);
 		}
 		
-		protected var _owner:feathers.controls.List;
-		
+		/**
+		 * @inheritDoc
+		 */
 		public function get owner():feathers.controls.List
 		{
 			return feathers.controls.List(this._owner);
 		}
 		
+		/**
+		 * @private
+		 */
 		public function set owner(value:feathers.controls.List):void
 		{
 			if(this._owner == value)
 			{
 				return;
 			}
+			if(this._owner)
+			{
+				feathers.controls.List(this._owner).removeEventListener(Event.SCROLL, owner_scrollHandler);
+			}
 			this._owner = value;
+			if(this._owner)
+			{
+				const list:feathers.controls.List = feathers.controls.List(this._owner);
+				this.isToggle = list.isSelectable;
+				list.addEventListener(Event.SCROLL, owner_scrollHandler);
+			}
 			this.invalidate(INVALIDATION_FLAG_DATA);
 		}
 		
-		protected var _data:Object;
-		
-		public function get data():Object
+		/**
+		 * @private
+		 */
+		protected function owner_scrollHandler(event:Event):void
 		{
-			return this._data;
-		}
-		
-		public function set data(value:Object):void
-		{
-			if(this._data == value)
-			{
-				return;
-			}
-			this._data = value;
-			this.invalidate(INVALIDATION_FLAG_DATA);
-		}
-		
-		protected var _isSelected:Boolean;
-		
-		public function get isSelected():Boolean
-		{
-			return this._isSelected;
-		}
-		override protected function draw():void
-		{
-			const dataInvalid:Boolean = isInvalid(INVALIDATION_FLAG_DATA);
-			const selectionInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_SELECTED);
-			if(dataInvalid)
-			{
-				commitData();
-			}
-		}
-		protected function commitData():void
-		{
-			
-		}
-		public function set isSelected(value:Boolean):void
-		{
-			if(this._isSelected == value)
-			{
-				return;
-			}
-			this._isSelected = value;
-			this.invalidate(INVALIDATION_FLAG_SELECTED);
-			this.dispatchEventWith(Event.CHANGE);
+			this.handleOwnerScroll();
 		}
 	}
 }
