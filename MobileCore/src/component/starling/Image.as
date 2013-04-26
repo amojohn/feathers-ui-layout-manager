@@ -8,12 +8,21 @@ package component.starling
 	
 	public class Image extends ImageLoader
 	{
+		private var _source:Object;
 		public function Image()
 		{
 			super();
 		}
-
+		override public function get source():Object
+		{
+			return _source;
+		}
 		override public function set source(value:Object):void
+		{
+			_source = value;
+			setSource(value);
+		}
+		public function setSource(value:Object):void
 		{
 			if(value is Texture)
 			{
