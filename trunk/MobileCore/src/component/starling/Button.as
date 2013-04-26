@@ -8,7 +8,7 @@ package component.starling
 	
 	public class Button extends feathers.controls.Button
 	{
-
+		private var _disabledSkinName:String;
 		private var _defaultIconName:String;
 		private var _defaultSkinName:String;
 		private var _downSkinName:String;
@@ -17,6 +17,19 @@ package component.starling
 		{
 			super();
 		}
+
+		public function get disabledSkinName():String
+		{
+			return _disabledSkinName;
+		}
+
+		public function set disabledSkinName(value:String):void
+		{
+			_disabledSkinName = value;
+			var skin:starling.display.Image = new starling.display.Image(UIManager.getInstance().getTexture(value));
+			disabledSkin = skin;
+		}
+
 		override protected function initialize():void
 		{
 			super.initialize();

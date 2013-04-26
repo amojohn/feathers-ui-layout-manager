@@ -2,17 +2,21 @@ package component.starling
 {
 	import flash.geom.Rectangle;
 	
+	import events.BaseEvent;
+	
 	import feathers.controls.List;
 	import feathers.controls.ScrollBar;
 	import feathers.controls.Scroller;
 	import feathers.display.Scale3Image;
 	import feathers.display.Scale9Image;
+	import feathers.layout.HorizontalLayout;
+	import feathers.layout.VerticalLayout;
 	import feathers.textures.Scale3Textures;
 	import feathers.textures.Scale9Textures;
-	
+	import utils.tool;
 	import manager.UIManager;
 	
-	import utils.tool;
+	import starling.events.Event;
 	
 	public class List extends feathers.controls.List
 	{
@@ -36,13 +40,81 @@ package component.starling
 		private var _scrollerVerticalSecondRegionSize:int = 14;
 		private var _interactionMode:String;
 		private var _scrollBarDisplayMode:String;
+		private var _layoutType:String;
+		private var _verticalAlign:String;
+		private var _horizontalAlign:String;
+		protected var _selectedItems:Vector.<ListItem> = new Vector.<ListItem>();
 		public function List()
 		{
 			_interactionMode = tool.getOSType()==0?Scroller.INTERACTION_MODE_MOUSE:Scroller.INTERACTION_MODE_TOUCH;
 			_scrollBarDisplayMode = tool.getOSType()==0?Scroller.SCROLL_BAR_DISPLAY_MODE_FLOAT:Scroller.SCROLL_BAR_DISPLAY_MODE_FIXED;
+			UIManager.getInstance().addEventListener(ListItem.SELECTED,itemSelected);
+			UIManager.getInstance().addEventListener(ListItem.UNSELECTED,itemUnSelected);
 			super();
 		}
+		public function getSelectedItems():Vector.<ListItem>
+		{
+			return _selectedItems.concat();
+		}
+		protected function itemSelected(event:BaseEvent):void
+		{
+			_selectedItems.push(event.data);
+			dispatchEventWith(Event.CHANGE);
+		}
+		protected function itemUnSelected(event:BaseEvent):void
+		{
+			for (var i:int = 0; i < _selectedItems.length; i++) 
+			{
+				if(_selectedItems[i] == event.data)
+				{
+					_selectedItems.splice(i,1);
+				}
+			}
+			dispatchEventWith(Event.CHANGE);
+		}
+		override public function dispose():void
+		{
+			_selectedItems = null;
+			UIManager.getInstance().removeEventListener(ListItem.SELECTED,itemSelected);
+			UIManager.getInstance().removeEventListener(ListItem.UNSELECTED,itemUnSelected);
+			super.dispose();
+		}
+		
+		public function get verticalAlign():String
+		{
+			return _verticalAlign;
+		}
+		
+		public function set verticalAlign(value:String):void
+		{
+			_verticalAlign = value;
+		}
+		public function get horizontalAlign():String
+		{
+			return _horizontalAlign;
+		}
+		
+		public function set horizontalAlign(value:String):void
+		{
+			_horizontalAlign = value;
+		}
+		public function get layoutType():String
+		{
+			return _layoutType;
+		}
 
+		public function set layoutType(value:String):void
+		{
+			_layoutType = value;
+			if(_layoutType == 'horizontal')
+			{
+				layout = new HorizontalLayout();
+			}
+			else if(_layoutType == 'vertical')
+			{
+				layout = new VerticalLayout();
+			}
+		}
 
 		public function get incrementButtonVerticalHoverRectangle():String
 		{
@@ -234,7 +306,17 @@ package component.starling
 		override protected function initialize():void
 		{
 			super.initialize();
+			initLayOut();
+			initScroll();
+		}
+		protected function initLayOut():void
+		{
 			layout['gap'] = gap;
+			layout['verticalAlign'] = verticalAlign;
+			layout['horizontalAlign'] = horizontalAlign;
+		}
+		protected function initScroll():void
+		{
 			var thumbPropertiesDefaultSkin:Scale3Image;			
 			if(thumbVerticalDefaultSkinName)
 			{
@@ -320,7 +402,7 @@ package component.starling
 				scrollBar.direction = ScrollBar.DIRECTION_VERTICAL;
 				scrollBar.thumbProperties.defaultSkin = thumbPropertiesDefaultSkin?thumbPropertiesDefaultSkin:scrollBar.thumbProperties.defaultSkin;
 				scrollBar.thumbProperties.downSkin = thumbPropertiesDefaultSkin?thumbPropertiesDefaultSkin:scrollBar.thumbProperties.defaultSkin;
-			
+				
 				scrollBar.minimumTrackProperties.defaultSkin = trackPropertiesDefaultSkin?trackPropertiesDefaultSkin:scrollBar.minimumTrackProperties.defaultSkin;
 				scrollBar.minimumTrackProperties.downSkin = trackPropertiesDefaultSkin?trackPropertiesDefaultSkin:scrollBar.minimumTrackProperties.downSkin;
 				scrollBar.maximumTrackProperties.defaultSkin = trackPropertiesDefaultSkin?trackPropertiesDefaultSkin:scrollBar.maximumTrackProperties.defaultSkin;
