@@ -1,0 +1,9 @@
+基于xml的starling-feathers-ui布局框架
+布局方式类似flex
+控件名称也类似flex，HBox、Canvas、VBox、Image、Label、List、Alert等
+显存管理方便
+内存释放干净
+手机端和PC端都可以使用
+支持自定义皮肤
+主要在component.starling包下面
+另外也提供了普通2D渲染的资源加载、UI、Alert弹窗、窗口管理、Tip管理、拖动管理等
